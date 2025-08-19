@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { createUserDto } from './dto/createUser.dto';
 import { ImagekitService } from 'src/imagekit/imagekit.provider';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,10 +37,14 @@ export class UsersService {
         return await this.userRepository.save(createUserDto);
     }
 
-    async updateUser(id: number, updateUserDto: Partial<User>): Promise<Omit<User, 'password'>> {
+    async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<Omit<User, 'password'>> {
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+
         await this.userRepository.update(id, updateUserDto);
         return this.findById(id);
     }
+
 
     async updateProfilePicture(userId: string, file: Express.Multer.File) {
         const uploadResponse = await this.imagekitService.uploadFile(
