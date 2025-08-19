@@ -3,6 +3,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { postEntity } from './entities/post.entity';
 import { PostsService } from './posts.service';
+import { LikesService } from './likes.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -10,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class PostsController {
     constructor(
         private readonly postsService: PostsService,
+        private readonly likesService: LikesService,
     ) { }
 
     @Post()
@@ -36,15 +38,15 @@ export class PostsController {
     }
 
     @Get()
-    async findAllPosts(): Promise<Omit<postEntity, 'author'>[]> {
+    async findAllPosts() {
         const posts = await this.postsService.findAllPosts();
-        return posts.map(({ author, ...rest }) => rest);
+        return posts.map(({ author, likes, ...rest }) => rest);
     }
 
     @Get(':id')
-    async findPostById(@Param('id') id: string): Promise<Omit<postEntity, 'author'>> {
+    async findPostById(@Param('id') id: string) {
         const post = await this.postsService.findPostById(+id);
-        const { author, ...rest } = post;
+        const { author, likes, ...rest } = post;
         return rest;
     }
 
@@ -78,6 +80,31 @@ export class PostsController {
         // Pass userId untuk validasi ownership di service
         const result = await this.postsService.deletePost(+id, req.user.userId);
         return result
+    }
+
+    @Post(':id/like')
+    @UseGuards(JwtAuthGuard)
+    async likePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
+        if (!req.user || !req.user.userId) {
+            throw new Error('User not authenticated or user ID missing');
+        }
+
+        return await this.likesService.likePost(+id, req.user.userId);
+    }
+
+    @Delete(':id/like')
+    @UseGuards(JwtAuthGuard)
+    async unlikePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
+        if (!req.user || !req.user.userId) {
+            throw new Error('User not authenticated or user ID missing');
+        }
+
+        return await this.likesService.unlikePost(+id, req.user.userId);
+    }
+
+    @Get(':id/likes')
+    async getPostLikes(@Param('id') id: string) {
+        return await this.likesService.getPostLikes(+id);
     }
 
 }

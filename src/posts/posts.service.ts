@@ -5,6 +5,7 @@ import { Repository } from 'typeorm/repository/Repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { User } from 'src/users/entities/user.entity';
+import { Like } from './entities/like.entity';
 import { plainToInstance } from 'class-transformer';
 import { ImagekitService } from 'src/imagekit/imagekit.provider';
 
@@ -13,6 +14,7 @@ export class PostsService {
     constructor(
         @InjectRepository(postEntity) private readonly postsRepository: Repository<postEntity>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Like) private readonly likesRepository: Repository<Like>,
         private readonly imagekitService: ImagekitService,
     ) { }
 
@@ -78,17 +80,30 @@ export class PostsService {
         return plainToInstance(postEntity, updatedPost);
     }
 
-    async findAllPosts(): Promise<postEntity[]> {
-        const posts = await this.postsRepository.find();
-        return plainToInstance(postEntity, posts);
+    async findAllPosts(): Promise<(postEntity & { likeCount: number })[]> {
+        const posts = await this.postsRepository.find({
+            relations: ['likes']
+        });
+        
+        return posts.map(post => ({
+            ...plainToInstance(postEntity, post),
+            likeCount: post.likes ? post.likes.length : 0
+        }));
     }
 
-    async findPostById(id: number): Promise<postEntity> {
-        const post = await this.postsRepository.findOne({ where: { id } });
+    async findPostById(id: number): Promise<postEntity & { likeCount: number }> {
+        const post = await this.postsRepository.findOne({ 
+            where: { id },
+            relations: ['likes']
+        });
         if (!post) {
             throw new NotFoundException(`Post with ID ${id} not found`);
         }
-        return plainToInstance(postEntity, post);
+        
+        return {
+            ...plainToInstance(postEntity, post),
+            likeCount: post.likes ? post.likes.length : 0
+        };
     }
 
     async deletePost(id: number, userId?: number): Promise<{ message: string }> {
