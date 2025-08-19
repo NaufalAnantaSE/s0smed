@@ -45,17 +45,12 @@ export class UsersController {
         return this.usersService.updateProfilePicture(id, file);
     }
 
-    @Put(':id')
+    @Put()
     @UseGuards(JwtAuthGuard)
     async update(
-        @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
         @Request() req
     ) {
-        if (req.user.userId !== parseInt(id)) {
-            throw new ForbiddenException('You can only access your own data');
-        }
-
-        return this.usersService.updateUser(parseInt(id), updateUserDto);
+        return this.usersService.updateUser(req.user.userId, updateUserDto);
     }
 }

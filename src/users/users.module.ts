@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 
@@ -8,7 +8,7 @@ import { ImagekitService } from 'src/imagekit/imagekit.provider';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([User, Post])],
   providers: [UsersService, ImagekitService],
   controllers: [UsersController],
   exports: [UsersService],

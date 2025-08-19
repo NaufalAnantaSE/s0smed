@@ -9,7 +9,7 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 @Injectable()
 export class UsersService {
     constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
-        private readonly imagekitService: ImagekitService) { }
+        private readonly imagekitService: ImagekitService) {}
 
     async findOne(email: string): Promise<User | null> {
         const user = await this.userRepository.findOne({ where: { email } });
@@ -17,7 +17,17 @@ export class UsersService {
             return null;
         }
         return user;
+    }
 
+    async findOneWithPassword(email: string): Promise<User | null> {
+        const user = await this.userRepository.findOne({ 
+            where: { email },
+            select: ['id', 'email', 'name', 'password', 'bio', 'avatar_url', 'createdAt', 'updatedAt', 'deletedAt']
+        });
+        if (!user) {
+            return null;
+        }
+        return user;
     }
 
     async findById(id: number): Promise<Omit<User, 'password'>> {
@@ -40,8 +50,15 @@ export class UsersService {
     async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<Omit<User, 'password'>> {
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-
-        await this.userRepository.update(id, updateUserDto);
+        if (updateUserDto.email) {
+            const existingUser = await this.findOne(updateUserDto.email);
+            if (existingUser && existingUser.id !== id) {
+                throw new ConflictException('Email already in use');
+            }
+        }
+        const updatedUser = this.userRepository.merge(user, updateUserDto);
+        await this.userRepository.save(updatedUser);
+        
         return this.findById(id);
     }
 
@@ -51,7 +68,13 @@ export class UsersService {
             file.buffer,
             `user-${userId}-${Date.now()}`
         );
-        await this.userRepository.update(userId, { avatar_url: uploadResponse.url });
+
+        const user = await this.userRepository.findOne({ where: { id: parseInt(userId) } });
+        if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+        
+        user.avatar_url = uploadResponse.url;
+        await this.userRepository.save(user);
+        
         return {
             message: 'Profile updated',
             url: uploadResponse.url,

@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { postEntity } from "src/posts/entities/post.entity";
+import { Exclude } from "class-transformer";
 
 
 
@@ -13,7 +15,8 @@ export class User {
     @Column()
     name: string;
 
-    @Column()
+    @Column({ select: false })
+    @Exclude()
     password: string;
 
     @Column({ nullable: true })
@@ -22,10 +25,15 @@ export class User {
     @Column({ nullable: true })
     avatar_url?: string;
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @OneToMany(() => postEntity, (post) => post.author)
+    posts: postEntity[];
+
+    @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date;
-    @Column({ type: 'timestamp', nullable: true })
-    updatedAt?: Date;
-    @Column({ type: 'timestamp', nullable: true })
+
+    @UpdateDateColumn({ type: 'timestamp', nullable: true })
+    updatedAt: Date;
+
+    @DeleteDateColumn({ type: 'timestamp', nullable: true })
     deletedAt: Date | null;
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User } from 'src/users/entities/user.entity';
 import { createUserDto } from 'src/users/dto/createUser.dto';
@@ -16,8 +16,16 @@ export class AuthController {
 
     @HttpCode(200)
     @Post('login')
+
     async login(@Body() loginDto: { email: string; password: string }) {
         return this.authService.login(loginDto);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('me')
+    async getProfile(@Req() req) {
+        console.log(req.user); // This will have user data
+        return req.user;
     }
 
 }

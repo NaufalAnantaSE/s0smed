@@ -4,6 +4,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ImagekitService } from './imagekit/imagekit.provider';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ImagekitService } from './imagekit/imagekit.provider';
     }),
     UsersModule,
     AuthModule,
+    PostsModule,
   ],
   controllers: [],
   providers: [ImagekitService],

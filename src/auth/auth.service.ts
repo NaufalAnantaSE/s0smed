@@ -15,8 +15,8 @@ export class AuthService {
     ) { }
 
     async validateUser(loginDto: { email: string; password: string }) {
-        // cari user berdasarkan email
-        const user = await this.usersService.findOne(loginDto.email);
+        // cari user berdasarkan email dengan password
+        const user = await this.usersService.findOneWithPassword(loginDto.email);
 
         if (!user) {
             throw new UnauthorizedException('Invalid email or password');
