@@ -8,16 +8,29 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly usersService: UsersService,
+    constructor(
+        private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
     ) { }
 
     async validateUser(loginDto: { email: string; password: string }) {
-        // TODO: implementasi cek user di database
-        const user = { id: 1, email: loginDto.email }; // dummy
-        if (!user) throw new UnauthorizedException();
-        return user;
+        // cari user berdasarkan email
+        const user = await this.usersService.findOne(loginDto.email);
+
+        if (!user) {
+            throw new UnauthorizedException('Invalid email or password');
+        }
+
+        // cek password dengan bcrypt.compare
+        const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid email or password');
+        }
+
+        // hapus field password biar tidak ikut direturn
+        const { password, ...result } = user;
+        return result;
     }
 
     async login(loginDto: { email: string; password: string }) {
