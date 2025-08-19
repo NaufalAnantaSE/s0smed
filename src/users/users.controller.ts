@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request, ForbiddenException, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { createUserDto } from './dto/createUser.dto';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -28,4 +29,18 @@ export class UsersController {
         return this.usersService.findById(parseInt(id));
     }
 
+    @Put('photo/:id')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('avatar_url'))
+    async updateProfilePicture(
+        @Param('id') id: string,
+        @Request() req,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        if (req.user.userId !== parseInt(id)) {
+            throw new ForbiddenException('You can only access your own data');
+        }
+
+        return this.usersService.updateProfilePicture(id, file);
+    }
 }

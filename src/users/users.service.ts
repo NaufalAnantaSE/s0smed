@@ -3,10 +3,12 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { createUserDto } from './dto/createUser.dto';
+import { ImagekitService } from 'src/imagekit/imagekit.provider';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) { }
+    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
+        private readonly imagekitService: ImagekitService) { }
 
     async findOne(email: string): Promise<User | null> {
         const user = await this.userRepository.findOne({ where: { email } });
@@ -32,5 +34,22 @@ export class UsersService {
             throw new ConflictException('User already exists');
         }
         return await this.userRepository.save(createUserDto);
+    }
+
+    async updateUser(id: number, updateUserDto: Partial<User>): Promise<Omit<User, 'password'>> {
+        await this.userRepository.update(id, updateUserDto);
+        return this.findById(id);
+    }
+
+    async updateProfilePicture(userId: string, file: Express.Multer.File) {
+        const uploadResponse = await this.imagekitService.uploadFile(
+            file.buffer,
+            `user-${userId}-${Date.now()}`
+        );
+        await this.userRepository.update(userId, { avatar_url: uploadResponse.url });
+        return {
+            message: 'Profile updated',
+            url: uploadResponse.url,
+        };
     }
 }
