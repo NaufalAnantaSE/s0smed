@@ -1,9 +1,12 @@
 import { Body, Controller, Post, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException, Get, Param, Delete, Put } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 import { postEntity } from './entities/post.entity';
 import { PostsService } from './posts.service';
 import { LikesService } from './likes.service';
+import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -12,6 +15,7 @@ export class PostsController {
     constructor(
         private readonly postsService: PostsService,
         private readonly likesService: LikesService,
+        private readonly commentsService: CommentsService,
     ) { }
 
     @Post()
@@ -40,13 +44,13 @@ export class PostsController {
     @Get()
     async findAllPosts() {
         const posts = await this.postsService.findAllPosts();
-        return posts.map(({ author, likes, ...rest }) => rest);
+        return posts.map(({ author, likes, comments, ...rest }) => rest);
     }
 
     @Get(':id')
     async findPostById(@Param('id') id: string) {
         const post = await this.postsService.findPostById(+id);
-        const { author, likes, ...rest } = post;
+        const { author, likes, comments, ...rest } = post;
         return rest;
     }
 
@@ -105,6 +109,59 @@ export class PostsController {
     @Get(':id/likes')
     async getPostLikes(@Param('id') id: string) {
         return await this.likesService.getPostLikes(+id);
+    }
+
+    // Comment endpoints
+    @Post(':id/comments')
+    @UseGuards(JwtAuthGuard)
+    async addComment(
+        @Param('id') id: string,
+        @Body() createCommentDto: CreateCommentDto,
+        @Req() req
+    ) {
+        if (!req.user || !req.user.userId) {
+            throw new Error('User not authenticated or user ID missing');
+        }
+
+        return await this.commentsService.createComment(+id, createCommentDto, req.user.userId);
+    }
+
+    @Get(':id/comments')
+    async getPostComments(@Param('id') id: string) {
+        return await this.commentsService.getPostComments(+id);
+    }
+
+}
+
+// Comments Controller (separate controller for comment operations)
+@Controller('comments')
+export class CommentsController {
+    constructor(
+        private readonly commentsService: CommentsService,
+    ) {}
+
+    @Put(':id')
+    @UseGuards(JwtAuthGuard)
+    async updateComment(
+        @Param('id') id: string,
+        @Body() updateCommentDto: UpdateCommentDto,
+        @Req() req
+    ) {
+        if (!req.user || !req.user.userId) {
+            throw new Error('User not authenticated or user ID missing');
+        }
+
+        return await this.commentsService.updateComment(+id, updateCommentDto, req.user.userId);
+    }
+
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    async deleteComment(@Param('id') id: string, @Req() req) {
+        if (!req.user || !req.user.userId) {
+            throw new Error('User not authenticated or user ID missing');
+        }
+
+        return await this.commentsService.deleteComment(+id, req.user.userId);
     }
 
 }

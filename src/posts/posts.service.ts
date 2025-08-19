@@ -6,6 +6,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Like } from './entities/like.entity';
+import { Comment } from './entities/comment.entity';
 import { plainToInstance } from 'class-transformer';
 import { ImagekitService } from 'src/imagekit/imagekit.provider';
 
@@ -15,6 +16,7 @@ export class PostsService {
         @InjectRepository(postEntity) private readonly postsRepository: Repository<postEntity>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Like) private readonly likesRepository: Repository<Like>,
+        @InjectRepository(Comment) private readonly commentsRepository: Repository<Comment>,
         private readonly imagekitService: ImagekitService,
     ) { }
 
@@ -80,21 +82,22 @@ export class PostsService {
         return plainToInstance(postEntity, updatedPost);
     }
 
-    async findAllPosts(): Promise<(postEntity & { likeCount: number })[]> {
+    async findAllPosts(): Promise<(postEntity & { likeCount: number; commentCount: number })[]> {
         const posts = await this.postsRepository.find({
-            relations: ['likes']
+            relations: ['likes', 'comments']
         });
         
         return posts.map(post => ({
             ...plainToInstance(postEntity, post),
-            likeCount: post.likes ? post.likes.length : 0
+            likeCount: post.likes ? post.likes.length : 0,
+            commentCount: post.comments ? post.comments.length : 0
         }));
     }
 
-    async findPostById(id: number): Promise<postEntity & { likeCount: number }> {
+    async findPostById(id: number): Promise<postEntity & { likeCount: number; commentCount: number }> {
         const post = await this.postsRepository.findOne({ 
             where: { id },
-            relations: ['likes']
+            relations: ['likes', 'comments']
         });
         if (!post) {
             throw new NotFoundException(`Post with ID ${id} not found`);
@@ -102,7 +105,8 @@ export class PostsService {
         
         return {
             ...plainToInstance(postEntity, post),
-            likeCount: post.likes ? post.likes.length : 0
+            likeCount: post.likes ? post.likes.length : 0,
+            commentCount: post.comments ? post.comments.length : 0
         };
     }
 

@@ -2,6 +2,7 @@ import { Exclude } from "class-transformer";
 import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Like } from "./like.entity";
+import { Comment } from "./comment.entity";
 
 
 @Entity('posts')
@@ -27,6 +28,9 @@ export class postEntity {
 
     @OneToMany(() => Like, (like) => like.post)
     likes: Like[];
+
+    @OneToMany(() => Comment, (comment) => comment.post)
+    comments: Comment[];
 
     @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date;
