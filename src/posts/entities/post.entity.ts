@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('posts')
@@ -27,9 +27,9 @@ export class postEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamp', nullable: true })
-    updatedAt: Date;
-
     @Column({ type: 'timestamp', nullable: true })
-    deletedAt: Date | null;
+    updatedAt?: Date;
+
+    @DeleteDateColumn({ type: 'timestamp' })
+    deletedAt?: Date;
 }

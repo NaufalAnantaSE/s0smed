@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { postEntity } from './entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { User } from 'src/users/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { ImagekitService } from 'src/imagekit/imagekit.provider';
@@ -23,7 +24,7 @@ export class PostsService {
 
         let imageUrl: string | undefined;
 
-        // Upload image
+        
         if (file) {
             const uploadResponse = await this.imagekitService.uploadFile(
                 file.buffer,
@@ -37,10 +38,70 @@ export class PostsService {
             content: createPostDto.content,
             photo_content: imageUrl,
             author: author,
+            
         });
 
         const savedPost = await this.postsRepository.save(newPost);
         return plainToInstance(postEntity, savedPost);
+    }
+
+    async updatePost(id: number, updatePostDto: UpdatePostDto, userId: number, file?: Express.Multer.File): Promise<postEntity> {
+        const post = await this.postsRepository.findOne({ where: { id } });
+        if (!post) {
+            throw new NotFoundException(`Post with ID ${id} not found`);
+        }
+
+        
+        if (post.authorId !== userId) {
+            throw new ForbiddenException('You can only update your own posts');
+        }
+
+        let imageUrl = post.photo_content;
+
+        
+        if (file) {
+            const uploadResponse = await this.imagekitService.uploadFile(
+                file.buffer,
+                `post-${userId}-${Date.now()}`
+            );
+            imageUrl = uploadResponse.url;
+        }
+
+        
+        const updatedPost = await this.postsRepository.save({
+            ...post,
+            ...updatePostDto,
+            photo_content: imageUrl,
+            updatedAt: new Date(), 
+        });
+
+        return plainToInstance(postEntity, updatedPost);
+    }
+
+    async findAllPosts(): Promise<postEntity[]> {
+        const posts = await this.postsRepository.find();
+        return plainToInstance(postEntity, posts);
+    }
+
+    async findPostById(id: number): Promise<postEntity> {
+        const post = await this.postsRepository.findOne({ where: { id } });
+        if (!post) {
+            throw new NotFoundException(`Post with ID ${id} not found`);
+        }
+        return plainToInstance(postEntity, post);
+    }
+
+    async deletePost(id: number, userId?: number): Promise<{ message: string }> {
+        const post = await this.postsRepository.findOne({ where: { id } });
+        if (!post) {
+            throw new NotFoundException(`Post with ID ${id} not found`);
+        }
+        if (userId && post.authorId !== userId) {
+            throw new ForbiddenException('You can only delete your own posts');
+        }
+
+        await this.postsRepository.softRemove(post);
+        return { message: 'Post deleted successfully' };
     }
 
 }
