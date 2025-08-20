@@ -2,14 +2,18 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { Follow } from './entities/follow.entity';
 import { createUserDto } from './dto/createUser.dto';
 import { ImagekitService } from 'src/imagekit/imagekit.provider';
 import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
-        private readonly imagekitService: ImagekitService) {}
+    constructor(
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Follow) private readonly followRepository: Repository<Follow>,
+        private readonly imagekitService: ImagekitService
+    ) {}
 
     async findOne(email: string): Promise<User | null> {
         const user = await this.userRepository.findOne({ where: { email } });
@@ -30,13 +34,21 @@ export class UsersService {
         return user;
     }
 
-    async findById(id: number): Promise<Omit<User, 'password'>> {
-        const user = await this.userRepository.findOne({ where: { id } });
+    async findById(id: number): Promise<any> {
+        const user = await this.userRepository.findOne({ 
+            where: { id },
+            relations: ['followers', 'following']
+        });
         if (!user) {
             throw new NotFoundException(`User with ID ${id} not found`);
         }
-        const { password, ...result } = user;
-        return result;
+        
+        const { password, followers, following, ...result } = user;
+        return {
+            ...result,
+            followerCount: followers ? followers.length : 0,
+            followingCount: following ? following.length : 0
+        };
     }
 
     async createUser(createUserDto: createUserDto): Promise<User> {
