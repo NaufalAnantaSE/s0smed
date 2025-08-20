@@ -1,0 +1,181 @@
+/* Swagger Dark Theme */
+.swagger-ui {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* Remove top bar and fix padding */
+.swagger-ui .topbar { display: none !important; }
+body { margin: 0 !important; padding: 0 !important; }
+html { margin: 0 !important; padding: 0 !important; }
+
+/* Main container */
+.swagger-ui .swagger-container {
+  max-width: none !important;
+  padding: 20px !important;
+  background-color: #1a1a1a !important;
+}
+
+/* Info section */
+.swagger-ui .info {
+  margin: 20px 0 !important;
+  background-color: #2d2d2d !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  border: 1px solid #404040 !important;
+}
+
+.swagger-ui .info .title {
+  color: #ffffff !important;
+  font-size: 2em !important;
+  margin-bottom: 10px !important;
+}
+
+.swagger-ui .info .description,
+.swagger-ui .info .version {
+  color: #b0b0b0 !important;
+}
+
+/* Operation blocks */
+.swagger-ui .opblock {
+  background-color: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  margin-bottom: 15px !important;
+  border-radius: 8px !important;
+}
+
+.swagger-ui .opblock .opblock-summary {
+  padding: 15px !important;
+  background-color: #333333 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.swagger-ui .opblock .opblock-summary-operation-id,
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-description {
+  color: #e0e0e0 !important;
+}
+
+/* HTTP Method colors */
+.swagger-ui .opblock.opblock-post .opblock-summary {
+  background-color: #1f4e3d !important;
+  border-color: #49cc90 !important;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary {
+  background-color: #1a3a5c !important;
+  border-color: #61affe !important;
+}
+
+.swagger-ui .opblock.opblock-put .opblock-summary {
+  background-color: #4a3c1f !important;
+  border-color: #fca130 !important;
+}
+
+.swagger-ui .opblock.opblock-delete .opblock-summary {
+  background-color: #4a1f1f !important;
+  border-color: #f93e3e !important;
+}
+
+/* Parameters and responses */
+.swagger-ui .parameters-container,
+.swagger-ui .responses-wrapper {
+  background-color: #252525 !important;
+  border: 1px solid #404040 !important;
+  border-radius: 0 0 8px 8px !important;
+  padding: 20px !important;
+}
+
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_description {
+  color: #e0e0e0 !important;
+}
+
+/* Input fields */
+.swagger-ui input[type=text],
+.swagger-ui input[type=password],
+.swagger-ui textarea,
+.swagger-ui select {
+  background-color: #404040 !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #555555 !important;
+  border-radius: 4px !important;
+}
+
+/* Buttons */
+.swagger-ui .btn {
+  background-color: #4990e2 !important;
+  border: 1px solid #4990e2 !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  padding: 8px 16px !important;
+}
+
+.swagger-ui .btn:hover {
+  background-color: #357abd !important;
+  border-color: #357abd !important;
+}
+
+.swagger-ui .btn.cancel {
+  background-color: #555555 !important;
+  border-color: #555555 !important;
+}
+
+/* Authorization */
+.swagger-ui .auth-container {
+  background-color: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+}
+
+.swagger-ui .auth-container h4 {
+  color: #ffffff !important;
+}
+
+/* Tags */
+.swagger-ui .opblock-tag {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  border: 1px solid #404040 !important;
+  border-radius: 8px !important;
+  margin-bottom: 20px !important;
+  padding: 15px !important;
+}
+
+.swagger-ui .opblock-tag-section h3 {
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
+/* Code blocks */
+.swagger-ui .highlight-code {
+  background-color: #1e1e1e !important;
+  border: 1px solid #404040 !important;
+  border-radius: 4px !important;
+}
+
+.swagger-ui .highlight-code pre {
+  color: #e0e0e0 !important;
+}
+
+/* Tables */
+.swagger-ui table {
+  background-color: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+}
+
+.swagger-ui table thead tr th,
+.swagger-ui table tbody tr td {
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid #404040 !important;
+  padding: 12px !important;
+}
+
+.swagger-ui table thead tr th {
+  background-color: #333333 !important;
+  font-weight: bold !important;
+}

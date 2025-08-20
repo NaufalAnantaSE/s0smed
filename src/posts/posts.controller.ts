@@ -9,6 +9,15 @@ import { LikesService } from './likes.service';
 import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { 
+    PostsCreateDocs, 
+    PostsGetAllDocs, 
+    PostsGetByIdDocs, 
+    PostsUpdateDocs, 
+    PostsDeleteDocs 
+} from '../common/docs/posts-docs.decorator';
+import { LikePostDocs, UnlikePostDocs, GetPostLikesDocs } from '../common/docs/likes-docs.decorator';
+import { CreateCommentDocs, GetPostCommentsDocs, UpdateCommentDocs, DeleteCommentDocs } from '../common/docs/comments-docs.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -18,6 +27,7 @@ export class PostsController {
         private readonly commentsService: CommentsService,
     ) { }
 
+    @PostsCreateDocs()
     @Post()
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('image'))
@@ -41,12 +51,14 @@ export class PostsController {
         return response;
     }
 
+    @PostsGetAllDocs()
     @Get()
     async findAllPosts() {
         const posts = await this.postsService.findAllPosts();
         return posts.map(({ author, likes, comments, ...rest }) => rest);
     }
 
+    @PostsGetByIdDocs()
     @Get(':id')
     async findPostById(@Param('id') id: string) {
         const post = await this.postsService.findPostById(+id);
@@ -54,6 +66,7 @@ export class PostsController {
         return rest;
     }
 
+    @PostsUpdateDocs()
     @Put(':id')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('image'))
@@ -74,6 +87,7 @@ export class PostsController {
         return response;
     }
 
+    @PostsDeleteDocs()
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     async deletePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
@@ -86,6 +100,7 @@ export class PostsController {
         return result
     }
 
+    @LikePostDocs()
     @Post(':id/like')
     @UseGuards(JwtAuthGuard)
     async likePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
@@ -96,6 +111,7 @@ export class PostsController {
         return await this.likesService.likePost(+id, req.user.userId);
     }
 
+    @UnlikePostDocs()
     @Delete(':id/like')
     @UseGuards(JwtAuthGuard)
     async unlikePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
@@ -106,12 +122,14 @@ export class PostsController {
         return await this.likesService.unlikePost(+id, req.user.userId);
     }
 
+    @GetPostLikesDocs()
     @Get(':id/likes')
     async getPostLikes(@Param('id') id: string) {
         return await this.likesService.getPostLikes(+id);
     }
 
     // Comment endpoints
+    @CreateCommentDocs()
     @Post(':id/comments')
     @UseGuards(JwtAuthGuard)
     async addComment(
@@ -126,6 +144,7 @@ export class PostsController {
         return await this.commentsService.createComment(+id, createCommentDto, req.user.userId);
     }
 
+    @GetPostCommentsDocs()
     @Get(':id/comments')
     async getPostComments(@Param('id') id: string) {
         return await this.commentsService.getPostComments(+id);
@@ -140,6 +159,7 @@ export class CommentsController {
         private readonly commentsService: CommentsService,
     ) {}
 
+    @UpdateCommentDocs()
     @Put(':id')
     @UseGuards(JwtAuthGuard)
     async updateComment(
@@ -154,6 +174,7 @@ export class CommentsController {
         return await this.commentsService.updateComment(+id, updateCommentDto, req.user.userId);
     }
 
+    @DeleteCommentDocs()
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     async deleteComment(@Param('id') id: string, @Req() req) {
@@ -165,5 +186,3 @@ export class CommentsController {
     }
 
 }
-
-

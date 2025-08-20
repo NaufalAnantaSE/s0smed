@@ -34,6 +34,21 @@ export class UsersService {
         return user;
     }
 
+    async findAll(): Promise<any[]> {
+        const users = await this.userRepository.find({
+            relations: ['followers', 'following']
+        });
+        
+        return users.map(user => {
+            const { password, followers, following, ...result } = user;
+            return {
+                ...result,
+                followers_count: followers ? followers.length : 0,
+                following_count: following ? following.length : 0
+            };
+        });
+    }
+
     async findById(id: number): Promise<any> {
         const user = await this.userRepository.findOne({ 
             where: { id },
@@ -91,5 +106,15 @@ export class UsersService {
             message: 'Profile updated',
             url: uploadResponse.url,
         };
+    }
+
+    async deleteUser(id: number): Promise<{ message: string }> {
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new NotFoundException(`User with ID ${id} not found`);
+        }
+
+        await this.userRepository.remove(user);
+        return { message: 'User deleted successfully' };
     }
 }
