@@ -6,11 +6,10 @@ import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { GetUsersDocs, GetCurrentUserDocs, GetUserByIdDocs, UpdateUserDocs, DeleteUserDocs, UpdateCurrentUserPhotoDocs, UpdateCurrentUserDocs, DeleteCurrentUserDocs } from '../common/docs/users-docs.decorator';
+import { GetUsersDocs, GetUserByIdDocs, UpdateUserDocs, DeleteUserDocs } from '../common/docs/users-docs.decorator';
 import { FollowUserDocs, UnfollowUserDocs, GetUserFollowersDocs, GetUserFollowingDocs } from '../common/docs/follow-docs.decorator';
-import { ApiController } from '../common/base.controller';
 
-@ApiController('users')
+@Controller('api/v1/users')
 export class UsersController {
     constructor(
         private readonly usersService: UsersService,
@@ -24,53 +23,69 @@ export class UsersController {
         return await this.usersService.findAll();
     }
 
-    // Get current user profile from JWT token
-    @GetCurrentUserDocs()
-    @Get('me')
-    @UseGuards(JwtAuthGuard)
-    async getCurrentUserProfile(@Request() req) {
-        if (!req.user || !req.user.userId) {
-            throw new Error('User not authenticated or user ID missing');
-        }
-        
-        return await this.usersService.findById(req.user.userId);
-    }
-
-    // Get user profile (public endpoint - for viewing other users)
+    // Get user profile (public endpoint)
     @GetUserByIdDocs()
     @Get('profile/:id')
     async getUserProfile(@Param('id') id: string) {
         return await this.usersService.findById(parseInt(id));
     }
 
-    // Update current user's profile photo (no ID required - uses JWT)
-    @UpdateCurrentUserPhotoDocs()
-    @Put('me/photo')
+    // users.controller.ts
+    @GetUserByIdDocs()
+    @Get(':id')
+    @UseGuards(JwtAuthGuard)
+    async getUserById(
+        @Param('id') id: string,
+        @Request() req
+    ) {
+        // Cek apakah id dari params sama dengan id dari token
+        if (req.user.userId !== parseInt(id)) {
+            throw new ForbiddenException('You can only access your own data');
+        }
+
+        return this.usersService.findById(parseInt(id));
+    }
+
+    @UpdateUserDocs()
+    @Put('photo/:id')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('avatar_url'))
-    async updateMyProfilePicture(
+    async updateProfilePicture(
+        @Param('id') id: string,
         @Request() req,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        return this.usersService.updateProfilePicture(req.user.userId.toString(), file);
+        if (req.user.userId !== parseInt(id)) {
+            throw new ForbiddenException('You can only access your own data');
+        }
+
+        return this.usersService.updateProfilePicture(id, file);
     }
 
-    // Update current user's profile (no ID required - uses JWT)
-    @UpdateCurrentUserDocs()
-    @Put('me')
+    @UpdateUserDocs()
+    @Put(':id')
     @UseGuards(JwtAuthGuard)
-    async updateMyProfile(
+    async update(
+        @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
         @Request() req
     ) {
+        if (req.user.userId !== parseInt(id)) {
+            throw new ForbiddenException('You can only update your own profile');
+        }
         return this.usersService.updateUser(req.user.userId, updateUserDto);
     }
 
-    // Delete current user's account (no ID required - uses JWT)
-    @DeleteCurrentUserDocs()
-    @Delete('me')
+    @DeleteUserDocs()
+    @Delete(':id')
     @UseGuards(JwtAuthGuard)
-    async deleteMyAccount(@Request() req) {
+    async deleteUser(
+        @Param('id') id: string,
+        @Request() req
+    ) {
+        if (req.user.userId !== parseInt(id)) {
+            throw new ForbiddenException('You can only delete your own account');
+        }
         return this.usersService.deleteUser(req.user.userId);
     }
 
