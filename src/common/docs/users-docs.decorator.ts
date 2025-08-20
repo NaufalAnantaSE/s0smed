@@ -36,6 +36,38 @@ export function GetUsersDocs() {
   );
 }
 
+export function GetCurrentUserDocs() {
+  return applyDecorators(
+    ApiTags('Users'),
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get current user profile',
+      description: 'Retrieve the authenticated user profile from JWT token'
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Current user profile retrieved successfully',
+      schema: {
+        type: 'object',
+        properties: {
+          id: { type: 'number', example: 1 },
+          name: { type: 'string', example: 'John Doe' },
+          email: { type: 'string', example: 'john@example.com' },
+          avatar_url: { type: 'string', nullable: true, example: 'https://...' },
+          followers_count: { type: 'number', example: 10 },
+          following_count: { type: 'number', example: 5 },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time', nullable: true }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized - Invalid or missing token'
+    })
+  );
+}
+
 export function GetUserByIdDocs() {
   return applyDecorators(
     ApiTags('Users'),
@@ -74,6 +106,143 @@ export function GetUserByIdDocs() {
     ApiResponse({
       status: 404,
       description: 'User not found'
+    })
+  );
+}
+
+export function UpdateCurrentUserPhotoDocs() {
+  return applyDecorators(
+    ApiTags('Users'),
+    ApiBearerAuth(),
+    ApiConsumes('multipart/form-data'),
+    ApiOperation({
+      summary: 'Update current user profile photo',
+      description: 'Update authenticated user profile photo (no ID required - uses JWT token)'
+    }),
+    ApiBody({
+      description: 'Profile photo upload',
+      schema: {
+        type: 'object',
+        properties: {
+          avatar_url: {
+            type: 'string',
+            format: 'binary',
+            description: 'Avatar image file'
+          }
+        },
+        required: ['avatar_url']
+      }
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Profile photo updated successfully',
+      schema: {
+        type: 'object',
+        properties: {
+          id: { type: 'number', example: 1 },
+          name: { type: 'string', example: 'John Doe' },
+          email: { type: 'string', example: 'john@example.com' },
+          avatar_url: { type: 'string', example: 'https://...' },
+          followers_count: { type: 'number', example: 10 },
+          following_count: { type: 'number', example: 5 },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Bad request - Invalid file or validation failed'
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized'
+    })
+  );
+}
+
+export function UpdateCurrentUserDocs() {
+  return applyDecorators(
+    ApiTags('Users'),
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Update current user profile',
+      description: 'Update authenticated user profile (no ID required - uses JWT token)'
+    }),
+    ApiBody({
+      description: 'User update data',
+      schema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            example: 'Updated Name',
+            description: 'User name (optional)'
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            example: 'newemail@example.com',
+            description: 'User email (optional)'
+          },
+          password: {
+            type: 'string',
+            minLength: 6,
+            example: 'newpassword123',
+            description: 'New password (optional, min 6 characters)'
+          }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'User updated successfully',
+      schema: {
+        type: 'object',
+        properties: {
+          id: { type: 'number', example: 1 },
+          name: { type: 'string', example: 'Updated Name' },
+          email: { type: 'string', example: 'newemail@example.com' },
+          avatar_url: { type: 'string', nullable: true, example: 'https://...' },
+          followers_count: { type: 'number', example: 10 },
+          following_count: { type: 'number', example: 5 },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Bad request - Validation failed'
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized'
+    })
+  );
+}
+
+export function DeleteCurrentUserDocs() {
+  return applyDecorators(
+    ApiTags('Users'),
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Delete current user account',
+      description: 'Delete authenticated user account (no ID required - uses JWT token)'
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'User deleted successfully',
+      schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', example: 'User deleted successfully' }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized'
     })
   );
 }

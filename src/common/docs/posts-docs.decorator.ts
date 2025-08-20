@@ -96,12 +96,54 @@ export function PostsGetAllDocs() {
   );
 }
 
+export function PostsGetMyDocs() {
+  return applyDecorators(
+    ApiTags('Posts'),
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get my posts',
+      description: 'Retrieve all posts created by the authenticated user (from JWT token)'
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'User posts retrieved successfully',
+      schema: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            title: { type: 'string', example: 'My Amazing Post' },
+            content: { type: 'string', nullable: true, example: 'This is the content...' },
+            photo_content: { type: 'string', nullable: true, example: 'https://imagekit.io/...' },
+            authorId: { type: 'number', example: 12 },
+            likeCount: { type: 'number', example: 5 },
+            commentCount: { type: 'number', example: 3 },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time', nullable: true }
+          }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized - Invalid or missing token'
+    })
+  );
+}
+
 export function PostsGetByIdDocs() {
   return applyDecorators(
     ApiTags('Posts'),
     ApiOperation({
       summary: 'Get post by ID',
       description: 'Retrieve a specific post by its ID'
+    }),
+    ApiParam({
+      name: 'id',
+      type: 'number',
+      description: 'Post ID (not user ID)',
+      example: 1
     }),
     ApiResponse({
       status: 200,
@@ -134,7 +176,13 @@ export function PostsUpdateDocs() {
     ApiBearerAuth(),
     ApiOperation({
       summary: 'Update post',
-      description: 'Update an existing post (only by owner)'
+      description: 'Update an existing post (only by owner). User ownership is verified automatically from JWT token.'
+    }),
+    ApiParam({
+      name: 'id',
+      type: 'number',
+      description: 'Post ID to update (not user ID - user is identified from JWT token)',
+      example: 1
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody({
@@ -187,7 +235,13 @@ export function PostsDeleteDocs() {
     ApiBearerAuth(),
     ApiOperation({
       summary: 'Delete post',
-      description: 'Delete an existing post (only by owner) - Soft delete'
+      description: 'Delete an existing post (only by owner) - Soft delete. User ownership is verified automatically from JWT token.'
+    }),
+    ApiParam({
+      name: 'id',
+      type: 'number',
+      description: 'Post ID to delete (not user ID - user is identified from JWT token)',
+      example: 1
     }),
     ApiResponse({
       status: 200,

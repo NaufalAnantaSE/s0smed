@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { 
     PostsCreateDocs, 
     PostsGetAllDocs, 
+    PostsGetMyDocs,
     PostsGetByIdDocs, 
     PostsUpdateDocs, 
     PostsDeleteDocs 
@@ -59,6 +60,18 @@ export class PostsController {
         return posts.map(({ author, likes, comments, ...rest }) => rest);
     }
 
+    @PostsGetMyDocs()
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    async getMyPosts(@Req() req) {
+        if (!req.user || !req.user.userId) {
+            throw new Error('User not authenticated or user ID missing');
+        }
+
+        const posts = await this.postsService.findPostsByUserId(req.user.userId);
+        return posts.map(({ author, likes, comments, ...rest }) => rest);
+    }
+
     @PostsGetByIdDocs()
     @Get(':id')
     async findPostById(@Param('id') id: string) {
@@ -88,6 +101,7 @@ export class PostsController {
         return response;
     }
 
+    @PostsDeleteDocs()
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     async deletePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
@@ -97,7 +111,7 @@ export class PostsController {
 
         // Pass userId untuk validasi ownership di service
         const result = await this.postsService.deletePost(+id, req.user.userId);
-        return result
+        return result;
     }
 
     @LikePostDocs()

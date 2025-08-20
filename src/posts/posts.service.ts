@@ -110,6 +110,20 @@ export class PostsService {
         };
     }
 
+    async findPostsByUserId(userId: number): Promise<(postEntity & { likeCount: number; commentCount: number })[]> {
+        const posts = await this.postsRepository.find({
+            where: { authorId: userId },
+            relations: ['likes', 'comments'],
+            order: { createdAt: 'DESC' }
+        });
+        
+        return posts.map(post => ({
+            ...plainToInstance(postEntity, post),
+            likeCount: post.likes ? post.likes.length : 0,
+            commentCount: post.comments ? post.comments.length : 0
+        }));
+    }
+
     async deletePost(id: number, userId?: number): Promise<{ message: string }> {
         const post = await this.postsRepository.findOne({ where: { id } });
         if (!post) {
