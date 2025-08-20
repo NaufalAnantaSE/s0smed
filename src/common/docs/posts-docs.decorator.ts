@@ -96,6 +96,42 @@ export function PostsGetAllDocs() {
   );
 }
 
+export function PostsGetMyDocs() {
+  return applyDecorators(
+    ApiTags('Posts'),
+    ApiBearerAuth(),
+    ApiOperation({
+      summary: 'Get my posts',
+      description: 'Retrieve all posts created by the authenticated user'
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'User posts retrieved successfully',
+      schema: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            title: { type: 'string', example: 'My Amazing Post' },
+            content: { type: 'string', nullable: true, example: 'This is the content...' },
+            photo_content: { type: 'string', nullable: true, example: 'https://imagekit.io/...' },
+            authorId: { type: 'number', example: 12 },
+            likeCount: { type: 'number', example: 5 },
+            commentCount: { type: 'number', example: 3 },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time', nullable: true }
+          }
+        }
+      }
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'Unauthorized - Invalid or missing token'
+    })
+  );
+}
+
 export function PostsGetByIdDocs() {
   return applyDecorators(
     ApiTags('Posts'),
