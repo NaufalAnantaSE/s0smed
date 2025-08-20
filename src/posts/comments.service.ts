@@ -80,13 +80,11 @@ export class CommentsService {
             throw new ForbiddenException('You can only edit your own comments');
         }
 
-        const updatedComment = await this.commentsRepository.save({
-            ...comment,
-            ...updateCommentDto,
-            updatedAt: new Date(),
-        });
-
-        return updatedComment;
+        return await this.commentsRepository.save({
+                    ...comment,
+                    ...updateCommentDto,
+                    updatedAt: new Date(),
+                });
     }
 
     async deleteComment(commentId: number, userId: number): Promise<{ message: string }> {

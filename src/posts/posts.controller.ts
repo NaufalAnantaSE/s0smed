@@ -46,7 +46,7 @@ export class PostsController {
             throw new BadRequestException('Post must have either content or image');
         }
         
-        const userId = req.user.userId;
+        const {userId} = req.user;
         const post = await this.postsService.createPost(createPostDto, userId, file);
         
         const { author, ...response } = post;
@@ -94,7 +94,7 @@ export class PostsController {
             throw new Error('User not authenticated or user ID missing');
         }
 
-        const userId = req.user.userId;
+        const {userId} = req.user;
         const post = await this.postsService.updatePost(+id, updatePostDto, userId, file);
         
         const { author, ...response } = post;
@@ -110,8 +110,7 @@ export class PostsController {
         }
 
         // Pass userId untuk validasi ownership di service
-        const result = await this.postsService.deletePost(+id, req.user.userId);
-        return result;
+        return await this.postsService.deletePost(+id, req.user.userId);
     }
 
     @LikePostDocs()
