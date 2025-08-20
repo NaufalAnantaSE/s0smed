@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -75,4 +73,3 @@ export async function createNestApp() {
     appInstance = app;
     return appInstance;
 }
->>>>>>> c8a08ce761bd1ae423e0f191d6be0a4fe74dd03c
