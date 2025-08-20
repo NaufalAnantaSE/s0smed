@@ -14,8 +14,15 @@ import { PostsModule } from './posts/posts.module';
       useFactory: (configService: ConfigService) => {
         const databaseUrl = configService.get<string>('DATABASE_URL');
         if (!databaseUrl) {
-          throw new Error('DATABASE_URL environment variable is not defined');
+          // Fallback to in-memory sqlite for testing/development on platforms without DATABASE_URL
+          return {
+            type: 'sqlite',
+            database: ':memory:',
+            synchronize: true,
+            autoLoadEntities: true,
+          } as any;
         }
+
         const url = new URL(databaseUrl);
         
         return {

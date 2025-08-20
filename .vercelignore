@@ -47,15 +47,17 @@ Thumbs.db
 /.nyc_output
 
 # Source code
-src/
-test/
-*.spec.ts
-*.test.ts
+# Source code
+# include source for build
+# src/
+# test/
+#*.spec.ts
+#*.test.ts
 
-# Config files
 .eslintrc.js
 .prettierrc
 jest.config.js
+# keep tsconfigs and nest-cli for build
 tsconfig.json
 tsconfig.build.json
 nest-cli.json

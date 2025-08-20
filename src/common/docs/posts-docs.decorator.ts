@@ -103,12 +103,6 @@ export function PostsGetByIdDocs() {
       summary: 'Get post by ID',
       description: 'Retrieve a specific post by its ID'
     }),
-    ApiParam({
-      name: 'id',
-      type: 'number',
-      description: 'Post ID',
-      example: 1
-    }),
     ApiResponse({
       status: 200,
       description: 'Post retrieved successfully',
@@ -141,12 +135,6 @@ export function PostsUpdateDocs() {
     ApiOperation({
       summary: 'Update post',
       description: 'Update an existing post (only by owner)'
-    }),
-    ApiParam({
-      name: 'id',
-      type: 'number',
-      description: 'Post ID',
-      example: 1
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody({
@@ -200,12 +188,6 @@ export function PostsDeleteDocs() {
     ApiOperation({
       summary: 'Delete post',
       description: 'Delete an existing post (only by owner) - Soft delete'
-    }),
-    ApiParam({
-      name: 'id',
-      type: 'number',
-      description: 'Post ID',
-      example: 1
     }),
     ApiResponse({
       status: 200,

@@ -8,8 +8,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { GetUsersDocs, GetUserByIdDocs, UpdateUserDocs, DeleteUserDocs } from '../common/docs/users-docs.decorator';
 import { FollowUserDocs, UnfollowUserDocs, GetUserFollowersDocs, GetUserFollowingDocs } from '../common/docs/follow-docs.decorator';
+import { ApiController } from '../common/base.controller';
 
-@Controller('users')
+@ApiController('users')
 export class UsersController {
     constructor(
         private readonly usersService: UsersService,

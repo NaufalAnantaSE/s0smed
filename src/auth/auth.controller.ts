@@ -4,8 +4,9 @@ import { User } from 'src/users/entities/user.entity';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { AuthRegisterDocs, AuthLoginDocs, AuthProfileDocs } from '../common/docs/auth-docs.decorator';
+import { ApiController } from '../common/base.controller';
 
-@Controller('auth')
+@ApiController('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 

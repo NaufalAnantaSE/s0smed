@@ -1,27 +1,9 @@
 {
   "version": 2,
-  "name": "s0smed-api",
-  "builds": [
-    {
-      "src": "dist/main.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["dist/**"]
-      }
-    }
-  ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "dist/main.js"
+      "src": "\\/(.*)",
+      "dest": "api/index.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "dist/main.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }

@@ -18,8 +18,9 @@ import {
 } from '../common/docs/posts-docs.decorator';
 import { LikePostDocs, UnlikePostDocs, GetPostLikesDocs } from '../common/docs/likes-docs.decorator';
 import { CreateCommentDocs, GetPostCommentsDocs, UpdateCommentDocs, DeleteCommentDocs } from '../common/docs/comments-docs.decorator';
+import { ApiController } from '../common/base.controller';
 
-@Controller('posts')
+@ApiController('posts')
 export class PostsController {
     constructor(
         private readonly postsService: PostsService,
@@ -87,7 +88,6 @@ export class PostsController {
         return response;
     }
 
-    @PostsDeleteDocs()
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     async deletePost(@Param('id') id: string, @Req() req): Promise<{ message: string }> {
@@ -153,7 +153,7 @@ export class PostsController {
 }
 
 // Comments Controller (separate controller for comment operations)
-@Controller('comments')
+@ApiController('comments')
 export class CommentsController {
     constructor(
         private readonly commentsService: CommentsService,
