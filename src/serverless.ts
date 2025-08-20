@@ -7,7 +7,9 @@ import { AppModule } from './app.module';
 let appInstance: any;
 
 export async function createNestApp() {
-    if (appInstance) return appInstance;
+    if (appInstance) {
+      return appInstance;
+    }
 
     const app = await NestFactory.create(AppModule, { logger: false });
     // Remove setGlobalPrefix for serverless - controllers will use full paths
