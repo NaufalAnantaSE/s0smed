@@ -76,7 +76,9 @@ export class UsersService {
 
     async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<Omit<User, 'password'>> {
         const user = await this.userRepository.findOne({ where: { id } });
-        if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+        if (!user) {
+          throw new NotFoundException(`User with ID ${id} not found`);
+        }
         if (updateUserDto.email) {
             const existingUser = await this.findOne(updateUserDto.email);
             if (existingUser && existingUser.id !== id) {
@@ -97,7 +99,9 @@ export class UsersService {
         );
 
         const user = await this.userRepository.findOne({ where: { id: parseInt(userId) } });
-        if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+        if (!user) {
+          throw new NotFoundException(`User with ID ${userId} not found`);
+        }
         
         user.avatar_url = uploadResponse.url;
         await this.userRepository.save(user);
