@@ -1,8 +1,6 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request, ForbiddenException, Put, UseInterceptors, UploadedFile, Delete } from '@nestjs/common';
+import { Body, Get, Param, Post, UseGuards, Request, ForbiddenException, Put, UseInterceptors, UploadedFile, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { FollowService } from './follow.service';
-import { createUserDto } from './dto/createUser.dto';
-import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/updateUser.dto';
@@ -87,10 +85,9 @@ export class UsersController {
         if (req.user.userId !== parseInt(id)) {
             throw new ForbiddenException('You can only delete your own account');
         }
-        return this.usersService.deleteUser(req.user.userId);
+        return await this.usersService.deleteUser(parseInt(id));
     }
 
-    // Follow endpoints
     @FollowUserDocs()
     @Post(':id/follow')
     @UseGuards(JwtAuthGuard)
