@@ -10,7 +10,6 @@
 body { margin: 0 !important; padding: 0 !important; }
 html { margin: 0 !important; padding: 0 !important; }
 
-/* Main container */
 .swagger-ui .swagger-container {
   max-width: none !important;
   padding: 20px !important;
